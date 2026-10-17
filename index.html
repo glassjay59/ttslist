@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TT's List</title>
+<meta name="description" content="TT's verified deals: Kroger stacks, Bath & Body Works, makeup, tech, clothes and shoes.">
+<meta name="theme-color" content="#E8338A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M6 30 30 6h24a4 4 0 0 1 4 4v24L34 58a4 4 0 0 1-6 0L6 36a4 4 0 0 1 0-6z' fill='%23E8338A'/%3E%3Ccircle cx='45' cy='19' r='5' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky filter rail over a wrapping grid of coupon cards with product photos; checker panel beside on wide screens, below on phones. Pink and white in every theme. */
+:root{
+  --bg:#FFE4EF; --surface:#FFFFFF; --ink:#5A0F35; --muted:#A04A76; --line:#FFC2DA;
+  --accent:#E8338A; --accent-ink:#FFFFFF; --accent-soft:#FFD6E8; --field:#FFF7FB;
+  --ok:#C2186B; --ok-soft:#FFE0EE; --bad:#9E1B4F; --bad-soft:#FFD9E6; --perf:#FFB3D1;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+img{max-width:100%}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+
+header{padding-block:28px 12px}
+.brand{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(40px,7vw,64px);line-height:.9;letter-spacing:-.03em;margin:0}
+h1 .apos{color:var(--accent)}
+.tag{margin:8px 0 0;color:var(--muted);max-width:52ch}
+.scanbox{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:right;display:grid;gap:2px}
+.scanbox b{color:var(--ink);font-weight:500}
+.newflag{display:inline-flex;background:var(--accent);color:var(--accent-ink);padding:2px 10px;border-radius:99px;font-family:var(--f-body);font-weight:700;font-size:12px;justify-self:end}
+
+.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line)}
+.rail-inner{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:99px;font-weight:600;font-size:13px;display:inline-flex;gap:6px;align-items:center}
+.chip .n{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip[aria-pressed="true"] .n{color:inherit;opacity:.8}
+.spacer{flex:1}
+.lbl{font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:11px;color:var(--muted)}
+select{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 10px;border-radius:8px}
+
+main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;padding-block:20px 60px}
+@media (max-width:900px){main{grid-template-columns:minmax(0,1fr)}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;align-content:start}
+.empty{grid-column:1/-1;border:2px dashed var(--line);border-radius:14px;padding:32px;text-align:center;color:var(--muted);background:var(--surface)}
+
+.deal{background:var(--surface);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.deal.isnew{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.deal.done{opacity:.6}
+.pic{position:relative;aspect-ratio:16/11;max-width:100%;background:#fff;display:grid;place-items:center;border-bottom:1px solid var(--line)}
+.pic img{width:100%;height:100%;object-fit:contain;padding:14px}
+.pic img.logo{width:72px;height:72px;padding:0;object-fit:contain}
+.pic .badges{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap}
+.d-top{padding:14px 16px 12px;display:grid;gap:8px}
+.d-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pill{padding:2px 8px;border-radius:99px;font-weight:700;font-size:11px;white-space:nowrap}
+.p-new{background:var(--accent);color:var(--accent-ink)}
+.p-ok{background:var(--ok-soft);color:var(--ok)}
+.p-check{background:var(--field);color:var(--muted);border:1px solid var(--line)}
+.p-bad{background:var(--bad-soft);color:var(--bad)}
+.p-combo{background:var(--ink);color:#fff}
+.d-title{font-family:var(--f-display);font-weight:700;font-size:19px;line-height:1.15;margin:0;text-wrap:balance}
+.price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-family:var(--f-mono)}
+.price .now{font-size:26px;font-weight:500;letter-spacing:-.02em}
+.price .was{color:var(--muted);text-decoration:line-through;font-size:13px}
+.price .off{color:var(--accent);font-weight:500;font-size:13px}
+.perf{border:0;border-top:2px dashed var(--perf);margin:0 12px}
+.d-bot{padding:12px 16px 14px;display:grid;gap:10px;flex:1;align-content:start}
+.ends{font-family:var(--f-mono);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.ends .soon{color:var(--bad);font-weight:500}
+details summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--accent);list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"+ ";font-family:var(--f-mono)}
+details[open] summary::before{content:"– "}
+ol.steps{margin:8px 0 0;padding-left:20px;font-size:14px;display:grid;gap:4px}
+.note{font-size:13px;color:var(--muted);margin:0}
+.d-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:4px}
+.btn{border:1px solid var(--line);background:transparent;padding:7px 12px;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.got{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+
+aside{display:grid;gap:16px;align-content:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.panel h2{font-family:var(--f-display);font-weight:700;font-size:22px;margin:0}
+.panel p{margin:0;color:var(--muted);font-size:14px}
+label{font-weight:600;font-size:13px}
+textarea,input[type=url]{width:100%;font:inherit;font-size:14px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--field);color:var(--ink)}
+textarea{min-height:96px;resize:vertical}
+.howit ol{margin:0;padding-left:20px;font-size:14px;color:var(--muted);display:grid;gap:4px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:20}
+@media (prefers-reduced-motion:no-preference){.deal{transition:transform .15s}.deal:hover{transform:translateY(-2px)}}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="brand">
+    <div>
+      <h1>TT<span class="apos">’</span>s List</h1>
+      <p class="tag">Deals that actually work, checked against the web before they land here. Grocery stacks, candles, makeup, tech, clothes and shoes.</p>
+    </div>
+    <div class="scanbox">
+      <span>Last web scan: <b id="lastScan">loading…</b></span>
+      <span>Scans daily at <b>7:45 am &amp; 4:45 pm</b></span>
+      <span class="newflag" id="newFlag" hidden></span>
+    </div>
+  </div>
+</header>
+
+<nav class="rail" aria-label="Filter deals"><div class="wrap rail-inner" id="chips"></div></nav>
+
+<main class="wrap">
+  <section class="grid" id="grid" aria-live="polite"><div class="empty">Loading deals…</div></section>
+  <aside>
+    <div class="panel">
+      <h2>Check a deal</h2>
+      <p>Saw a deal on TikTok, Facebook or in an app? Send it over and it gets tested on the next web scan.</p>
+      <label for="ckText">The deal</label>
+      <textarea id="ckText" placeholder="e.g. Kroger: buy 5 Cheerios in the Mega Sale + $1/2 digital coupon = $1.49 each?"></textarea>
+      <label for="ckUrl">Link (optional)</label>
+      <input type="url" id="ckUrl" placeholder="https://">
+      <div class="d-actions">
+        <a class="btn primary" id="ckText1" href="#">Text it to Jay</a>
+        <button class="btn" id="ckCopy" type="button">Copy</button>
+      </div>
+    </div>
+    <div class="panel howit">
+      <h2>How deals get verified</h2>
+      <ol>
+        <li>Twice a day Claude searches store ads, coupon sites and deal forums.</li>
+        <li>Each deal is confirmed on a recent source or the store’s own page, with the end date.</li>
+        <li>Old deals are re-checked and taken down when they stop working.</li>
+      </ol>
+    </div>
+  </aside>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const CATS=[{id:"all",label:"All"},{id:"new",label:"New today"},{id:"grocery",label:"Kroger & grocery"},{id:"bathbody",label:"Bath & Body Works"},{id:"beauty",label:"Makeup & beauty"},{id:"electronics",label:"Electronics"},{id:"fashion",label:"Clothes & shoes"},{id:"got",label:"Got it"}];
+const ART={grocery:"🛒",bathbody:"🕯️",beauty:"💄",electronics:"🎧",fashion:"👟"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=n=>typeof n==="number"?"$"+n.toFixed(2).replace(/\.00$/,""):"";
+const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let state={cat:store.get("tt-cat","all"),sort:store.get("tt-sort","new"),deals:[],got:new Set(store.get("tt-got",[]))};
+function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2400)}
+function daysLeft(exp){if(!exp)return null;const[y,m,d]=exp.split("-").map(Number);return Math.ceil((new Date(y,m-1,d,23,59,59)-new Date())/864e5)}
+const isNew=d=>d.addedAt&&(Date.now()-new Date(d.addedAt).getTime())<36*3600e3;
+const live=d=>d.status!=="dead"&&!((daysLeft(d.expires)??0)<0);
+const pctOff=d=>(typeof d.price==="number"&&typeof d.was==="number"&&d.was>0)?Math.round((1-d.price/d.was)*100):(d.pctOff||0);
+function ago(iso){if(!iso)return"";const h=(Date.now()-new Date(iso).getTime())/36e5;if(h<1)return"just now";if(h<24)return Math.round(h)+"h ago";return Math.round(h/24)+"d ago"}
+function filterFor(cat){
+  if(cat==="got")return state.deals.filter(d=>state.got.has(d.id));
+  const l=state.deals.filter(live);
+  if(cat==="all")return l; if(cat==="new")return l.filter(isNew);
+  return l.filter(d=>d.category===cat);
+}
+function renderChips(){
+  $("chips").innerHTML=CATS.map(c=>`<button class="chip" data-cat="${c.id}" aria-pressed="${state.cat===c.id}">${esc(c.label)} <span class="n">${filterFor(c.id).length}</span></button>`).join("")+
+  `<span class="spacer"></span><label for="sortSel" class="lbl">Sort</label><select id="sortSel"><option value="new">Newest first</option><option value="ending">Ending soon</option><option value="save">Biggest % off</option></select>`;
+  $("sortSel").value=state.sort;
+}
+/* Picture fallback chain: product photo -> store logo -> category emoji. Always shows something. */
+function pic(d){
+  const logo=d.storeDomain?`https://www.google.com/s2/favicons?domain=${encodeURIComponent(d.storeDomain)}&sz=128`:"";
+  const first=d.image||logo;
+  const cls=d.image?"":"logo";
+  return first?`<img src="${esc(first)}" alt="${esc(d.title)}" class="${cls}" loading="lazy" referrerpolicy="no-referrer" data-logo="${esc(d.image?logo:"")}" data-cat="${esc(d.category)}" onerror="picFail(this)">`
+    :`<span style="font-size:56px" aria-hidden="true">${ART[d.category]||"🏷️"}</span>`;
+}
+function picFail(img){
+  const logo=img.dataset.logo;
+  if(logo){img.dataset.logo="";img.className="logo";img.src=logo;return}
+  const s=document.createElement("span");s.style.fontSize="56px";s.setAttribute("aria-hidden","true");s.textContent=ART[img.dataset.cat]||"🏷️";img.replaceWith(s);
+}
+function card(d){
+  const dl=daysLeft(d.expires),off=pctOff(d),got=state.got.has(d.id);
+  const st=d.status==="verified"?`<span class="pill p-ok">Verified ${esc(ago(d.verifiedAt))}</span>`:d.status==="dead"?`<span class="pill p-bad">Ended</span>`:`<span class="pill p-check">Re-checking</span>`;
+  const ends=dl===null?"No end date posted":dl<0?"Ended":dl===0?`<span class="soon">Ends today</span>`:dl===1?`<span class="soon">Ends tomorrow</span>`:`Ends in ${dl} days · ${esc(d.expires)}`;
+  const steps=(d.steps||[]).map(s=>`<li>${esc(s)}</li>`).join("");
+  return `<article class="deal ${isNew(d)?"isnew":""} ${live(d)?"":"done"}">
+    <div class="pic">${pic(d)}<div class="badges">${isNew(d)?`<span class="pill p-new">NEW</span>`:""}${d.combo?`<span class="pill p-combo">Stack</span>`:""}</div></div>
+    <div class="d-top">
+      <div class="d-meta"><span class="lbl">${esc(d.store)}</span>${st}</div>
+      <h3 class="d-title">${esc(d.title)}</h3>
+      <div class="price"><span class="now">${esc(d.priceText||money(d.price))}</span>${d.was?`<span class="was">${esc(money(d.was))}</span>`:""}${off?`<span class="off">${off}% off</span>`:""}</div>
+    </div>
+    <hr class="perf">
+    <div class="d-bot">
+      <div class="ends"><span>${ends}</span>${d.where?`<span>${esc(d.where)}</span>`:""}</div>
+      ${steps?`<details><summary>How to get it</summary><ol class="steps">${steps}</ol></details>`:""}
+      ${d.note?`<p class="note">${esc(d.note)}</p>`:""}
+      <div class="d-actions">
+        ${d.url?`<a class="btn primary" href="${esc(d.url)}" target="_blank" rel="noopener">Go to deal</a>`:""}
+        <button class="btn ${got?"got":""}" data-got="${esc(d.id)}">${got?"✓ Got it":"Got it"}</button>
+      </div>
+      ${d.source?`<p class="note">Checked on <a href="${esc(d.source)}" target="_blank" rel="noopener">${esc(d.sourceName||"source")}</a></p>`:""}
+    </div>
+  </article>`;
+}
+function render(){
+  renderChips();
+  const list=filterFor(state.cat).slice();
+  if(state.sort==="new")list.sort((a,b)=>(b.addedAt||"").localeCompare(a.addedAt||""));
+  if(state.sort==="ending")list.sort((a,b)=>(daysLeft(a.expires)??999)-(daysLeft(b.expires)??999));
+  if(state.sort==="save")list.sort((a,b)=>pctOff(b)-pctOff(a));
+  $("grid").innerHTML=list.length?list.map(card).join(""):`<div class="empty">Nothing here right now. Try another filter.</div>`;
+  const n=state.deals.filter(d=>live(d)&&isNew(d)).length;
+  $("newFlag").hidden=!n;$("newFlag").textContent=n+" new deal"+(n===1?"":"s");
+}
+document.addEventListener("click",e=>{
+  const c=e.target.closest(".chip");if(c){state.cat=c.dataset.cat;store.set("tt-cat",state.cat);render();return}
+  const g=e.target.closest("[data-got]");if(g){const id=g.dataset.got;state.got.has(id)?state.got.delete(id):state.got.add(id);store.set("tt-got",[...state.got]);toast(state.got.has(id)?"Saved to Got it":"Removed");render()}
+});
+document.addEventListener("change",e=>{if(e.target.id==="sortSel"){state.sort=e.target.value;store.set("tt-sort",state.sort);render()}});
+function ckMsg(){const t=$("ckText").value.trim(),u=$("ckUrl").value.trim();return t?`Check this deal for TT's List: ${t}${u?" "+u:""}`:""}
+$("ckText1").addEventListener("click",e=>{const m=ckMsg();if(!m){e.preventDefault();$("ckText").focus();return toast("Type the deal first")}e.currentTarget.href="sms:?&body="+encodeURIComponent(m)});
+$("ckCopy").addEventListener("click",async()=>{const m=ckMsg();if(!m)return toast("Type the deal first");try{await navigator.clipboard.writeText(m);toast("Copied")}catch(e){$("ckText").select();toast("Press copy on your keyboard")}});
+
+fetch("deals.json?ts="+Date.now()).then(r=>r.json()).then(j=>{
+  state.deals=j.deals||[];
+  $("lastScan").textContent=j.lastScan?new Date(j.lastScan).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"})+(j.summary?" · "+j.summary:""):"not yet";
+  render();
+}).catch(()=>{$("grid").innerHTML=`<div class="empty">Couldn’t load deals. Pull down to refresh.</div>`;$("lastScan").textContent="—"});
+</script>
+</body>
+</html>
