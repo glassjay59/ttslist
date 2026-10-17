@@ -60,6 +60,7 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;padding-blo
 .deal.done{opacity:.6}
 .pic{position:relative;aspect-ratio:16/11;max-width:100%;background:#fff;display:grid;place-items:center;border-bottom:1px solid var(--line)}
 .pic img{width:100%;height:100%;object-fit:contain;padding:14px}
+.pic img.cover{object-fit:cover;padding:0}
 .pic img.logo{width:72px;height:72px;padding:0;object-fit:contain}
 .pic .badges{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap}
 .d-top{padding:14px 16px 12px;display:grid;gap:8px}
@@ -70,6 +71,7 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;padding-blo
 .p-check{background:var(--field);color:var(--muted);border:1px solid var(--line)}
 .p-bad{background:var(--bad-soft);color:var(--bad)}
 .p-combo{background:var(--ink);color:#fff}
+.p-local{background:#fff;color:var(--ink);border:1px solid var(--line)}
 .d-title{font-family:var(--f-display);font-weight:700;font-size:19px;line-height:1.15;margin:0;text-wrap:balance}
 .price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-family:var(--f-mono)}
 .price .now{font-size:26px;font-weight:500;letter-spacing:-.02em}
@@ -107,7 +109,7 @@ textarea{min-height:96px;resize:vertical}
   <div class="brand">
     <div>
       <h1>TT<span class="apos">’</span>s List</h1>
-      <p class="tag">Deals that actually work, checked against the web before they land here. Grocery stacks, candles, makeup, tech, clothes and shoes.</p>
+      <p class="tag">Deals that actually work, checked against the web before they land here. Grocery stacks, candles, makeup, tech, clothes, food, movies, things to do around Knoxville and freebies.</p>
     </div>
     <div class="scanbox">
       <span>Last web scan: <b id="lastScan">loading…</b></span>
@@ -147,8 +149,8 @@ textarea{min-height:96px;resize:vertical}
 <div class="toast" id="toast" hidden></div>
 
 <script>
-const CATS=[{id:"all",label:"All"},{id:"new",label:"New today"},{id:"grocery",label:"Kroger & grocery"},{id:"bathbody",label:"Bath & Body Works"},{id:"beauty",label:"Makeup & beauty"},{id:"electronics",label:"Electronics"},{id:"fashion",label:"Clothes & shoes"},{id:"got",label:"Got it"}];
-const ART={grocery:"🛒",bathbody:"🕯️",beauty:"💄",electronics:"🎧",fashion:"👟"};
+const CATS=[{id:"all",label:"All"},{id:"new",label:"New today"},{id:"grocery",label:"Kroger & grocery"},{id:"bathbody",label:"Bath & Body Works"},{id:"beauty",label:"Makeup & beauty"},{id:"electronics",label:"Electronics"},{id:"fashion",label:"Clothes & shoes"},{id:"food",label:"Food & restaurants"},{id:"fun",label:"Experiences & movies"},{id:"free",label:"Freebies"},{id:"everyday",label:"Target & everyday"},{id:"local",label:"Knoxville"},{id:"got",label:"Got it"}];
+const ART={grocery:"🛒",bathbody:"🕯️",beauty:"💄",electronics:"🎧",fashion:"👟",food:"🍔",fun:"🎟️",free:"🎁",everyday:"🎯"};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money=n=>typeof n==="number"?"$"+n.toFixed(2).replace(/\.00$/,""):"";
@@ -163,7 +165,7 @@ function ago(iso){if(!iso)return"";const h=(Date.now()-new Date(iso).getTime())/
 function filterFor(cat){
   if(cat==="got")return state.deals.filter(d=>state.got.has(d.id));
   const l=state.deals.filter(live);
-  if(cat==="all")return l; if(cat==="new")return l.filter(isNew);
+  if(cat==="all")return l; if(cat==="new")return l.filter(isNew); if(cat==="local")return l.filter(d=>d.local);
   return l.filter(d=>d.category===cat);
 }
 function renderChips(){
@@ -175,7 +177,7 @@ function renderChips(){
 function pic(d){
   const logo=d.storeDomain?`https://www.google.com/s2/favicons?domain=${encodeURIComponent(d.storeDomain)}&sz=128`:"";
   const first=d.image||logo;
-  const cls=d.image?"":"logo";
+  const cls=d.image?((d.category==="food"||d.category==="fun")&&d.photo!=="product"?"cover":""):"logo";
   return first?`<img src="${esc(first)}" alt="${esc(d.title)}" class="${cls}" loading="lazy" referrerpolicy="no-referrer" data-logo="${esc(d.image?logo:"")}" data-cat="${esc(d.category)}" onerror="picFail(this)">`
     :`<span style="font-size:56px" aria-hidden="true">${ART[d.category]||"🏷️"}</span>`;
 }
@@ -190,7 +192,7 @@ function card(d){
   const ends=dl===null?"No end date posted":dl<0?"Ended":dl===0?`<span class="soon">Ends today</span>`:dl===1?`<span class="soon">Ends tomorrow</span>`:`Ends in ${dl} days · ${esc(d.expires)}`;
   const steps=(d.steps||[]).map(s=>`<li>${esc(s)}</li>`).join("");
   return `<article class="deal ${isNew(d)?"isnew":""} ${live(d)?"":"done"}">
-    <div class="pic">${pic(d)}<div class="badges">${isNew(d)?`<span class="pill p-new">NEW</span>`:""}${d.combo?`<span class="pill p-combo">Stack</span>`:""}</div></div>
+    <div class="pic">${pic(d)}<div class="badges">${isNew(d)?`<span class="pill p-new">NEW</span>`:""}${d.combo?`<span class="pill p-combo">Stack</span>`:""}${d.local?`<span class="pill p-local">📍 ${esc(d.area||"Knoxville")}</span>`:""}</div></div>
     <div class="d-top">
       <div class="d-meta"><span class="lbl">${esc(d.store)}</span>${st}</div>
       <h3 class="d-title">${esc(d.title)}</h3>
